@@ -25,7 +25,7 @@ class Tweet extends React.Component {
       date: PropTypes.instanceOf(Date).isRequired,
       text: PropTypes.string.isRequired
     })
-  } 
+  }
 
   render() {
     const { user, text, date } = this.props.tweet;
@@ -58,17 +58,83 @@ const TweetData = [{
   date: new Date(),
   text: "To jest mój prywatny Twitter!"
 }];
-     
 
-const TweetList = ({ tweets }) => {                
+
+const TweetList = ({ tweets }) => {
   return (
     <>
       {tweets.map(item => <Tweet tweet={item} key={item.id} />)}
     </>
   );
-}   
+}
 TweetList.propTypes = {
   tweets: PropTypes.arrayOf(PropTypes.object)
 }
 
-ReactDOM.render(<TweetList tweets={TweetData}/>, document.getElementById('root'));
+class TweetForm extends React.Component {
+
+  state = {
+    text: ''
+  }
+
+  // static propTypes = {
+  //   onSubmit: PropTypes.func.isRequired
+  // }
+  handleChange = (event) => {
+    this.setState({
+      text: event.target.value
+    })
+  }
+  handleSubmit = () => {
+    this.props.onSubmit(this.state.text);
+    this.setState({ text: '' });
+  }
+
+  render() {
+    const { text } = this.state;
+    return (
+      <div>
+        <input type="text" onChange={this.handleChange} value={text} />
+        <br />
+        <button onClick={this.handleSubmit}>Tweetuj!</button>
+        {text && <p>Podgląd: {text}</p>}
+      </div>
+    )
+  }
+}
+
+class TweetApp extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      tweets: this.props.tweets
+    }
+  }
+
+  addTweet = (text) => {
+    const newTweet = {
+      id: this.state.tweets.length + 1,
+      user: {
+        name: "Bartosz Szczeciński",
+        handle: "btmpl"
+      },
+      date: new Date(),
+      text: text
+    }
+
+    this.setState((state) => ({
+      tweets: [newTweet, ...state.tweets]
+    }));
+  }
+
+  render() {
+    return (
+      <div>
+        <TweetForm onSubmit={this.addTweet} />
+        <TweetList tweets={this.state.tweets} />
+      </div>
+    )
+  }
+}
+ReactDOM.render(<TweetApp tweets={TweetData} />, document.getElementById('root')); 
